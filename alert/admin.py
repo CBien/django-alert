@@ -11,8 +11,8 @@ class AlertAdmin(admin.ModelAdmin):
     actions = ['resend']
     raw_id_fields = ("user",)
     
-    def queryset(self, request):
-        qs = super(AlertAdmin, self).queryset(request)
+    def get_queryset(self, request):
+        qs = super(AlertAdmin, self).get_queryset(request)
         if hasattr(qs, "prefetch_related"):
             qs = qs.prefetch_related("user")
         return qs
