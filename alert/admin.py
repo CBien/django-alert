@@ -1,5 +1,5 @@
-from datetime import datetime
 from django.contrib import admin
+from django.utils import timezone
 from alert.models import Alert, AlertPreference, AdminAlert
 from alert.signals import admin_alert_saved
 
@@ -11,8 +11,8 @@ class AlertAdmin(admin.ModelAdmin):
     actions = ['resend']
     raw_id_fields = ("user",)
     
-    def queryset(self, request):
-        qs = super(AlertAdmin, self).queryset(request)
+    def get_queryset(self, request):
+        qs = super(AlertAdmin, self).get_queryset(request)
         if hasattr(qs, "prefetch_related"):
             qs = qs.prefetch_related("user")
         return qs
@@ -93,7 +93,7 @@ class AdminAlertAdmin(admin.ModelAdmin):
         
     def status(self, obj):
         if obj.sent:
-            return "scheduled" if obj.send_at < datetime.now() else "sent"
+            return "scheduled" if obj.send_at < timezone.now() else "sent"
         else:
             return "unsent (saved as draft)"
         

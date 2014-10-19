@@ -1,6 +1,6 @@
-from datetime import datetime
 from collections import defaultdict
 from django.db.models import Manager
+from django.utils import timezone
 from alert.utils import ALERT_TYPES, ALERT_BACKENDS
 
 
@@ -15,13 +15,13 @@ class PendingAlertManager(AlertManager):
     future will not be affected by this manager.
     """
     
-    def get_query_set(self, *args, **kwargs):
-        qs = super(PendingAlertManager, self).get_query_set(*args, **kwargs)
-        return qs.filter(when__lte=datetime.now(), is_sent=False)
-    
-    
-    
-    
+    def get_queryset(self, *args, **kwargs):
+        qs = super(PendingAlertManager, self).get_queryset(*args, **kwargs)
+        return qs.filter(when__lte=timezone.now(), is_sent=False)
+
+
+
+
 class AlertPrefsManager(Manager):
     
     def get_user_prefs(self, user):
@@ -32,7 +32,7 @@ class AlertPrefsManager(Manager):
                         )
         
             
-        alert_prefs = self.get_query_set().filter(user=user)
+        alert_prefs = self.get_queryset().filter(user=user)
         
         prefs = {}
         for pref in alert_prefs:
@@ -52,7 +52,7 @@ class AlertPrefsManager(Manager):
         
         if not users: return ()
         
-        alert_prefs = self.get_query_set().filter(alert_type=notice_type.id).filter(user__in=users)
+        alert_prefs = self.get_queryset().filter(alert_type=notice_type.id).filter(user__in=users)
         
         prefs = {}
         for pref in alert_prefs:
