@@ -15,8 +15,8 @@ class PendingAlertManager(AlertManager):
     future will not be affected by this manager.
     """
     
-    def get_query_set(self, *args, **kwargs):
-        qs = super(PendingAlertManager, self).get_query_set(*args, **kwargs)
+    def get_queryset(self, *args, **kwargs):
+        qs = super(PendingAlertManager, self).get_queryset(*args, **kwargs)
         return qs.filter(when__lte=timezone.now(), is_sent=False)
 
 
@@ -32,7 +32,7 @@ class AlertPrefsManager(Manager):
                         )
         
             
-        alert_prefs = self.get_query_set().filter(user=user)
+        alert_prefs = self.get_queryset().filter(user=user)
         
         prefs = {}
         for pref in alert_prefs:
@@ -52,7 +52,7 @@ class AlertPrefsManager(Manager):
         
         if not users: return ()
         
-        alert_prefs = self.get_query_set().filter(alert_type=notice_type.id).filter(user__in=users)
+        alert_prefs = self.get_queryset().filter(alert_type=notice_type.id).filter(user__in=users)
         
         prefs = {}
         for pref in alert_prefs:
