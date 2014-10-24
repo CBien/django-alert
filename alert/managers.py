@@ -22,8 +22,8 @@ class PendingAlertManager(AlertManager):
 
 class UnnotifiedAlertManager(PendingAlertManager):
 
-    def get_queryset(self, *args, **kwargs):
-        qs = super(UnnotifiedAlertManager, self).get_queryset(*args, **kwargs)
+    def get_query_set(self, *args, **kwargs):
+        qs = super(UnnotifiedAlertManager, self).get_query_set(*args, **kwargs)
         return qs.filter(is_notified=False)
 
 
@@ -37,7 +37,7 @@ class AlertPrefsManager(Manager):
                         )
 
 
-        alert_prefs = self.get_queryset().filter(user=user)
+        alert_prefs = self.get_query_set().filter(user=user)
 
         prefs = {}
         for pref in alert_prefs:
@@ -57,7 +57,7 @@ class AlertPrefsManager(Manager):
 
         if not users: return ()
 
-        alert_prefs = self.get_queryset().filter(alert_type=notice_type.id).filter(user__in=users)
+        alert_prefs = self.get_query_set().filter(alert_type=notice_type.id).filter(user__in=users)
 
         prefs = {}
         for pref in alert_prefs:
