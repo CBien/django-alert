@@ -2,11 +2,13 @@ from django.conf import settings
 from django.utils import timezone
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import User as OriginalUser
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.db import models
 
 from alert.utils import ALERT_TYPE_CHOICES, ALERT_BACKEND_CHOICES, ALERT_TYPES, ALERT_BACKENDS
-from alert.managers import AlertManager, PendingAlertManager, AlertPrefsManager
+from alert.managers import AlertManager, PendingAlertManager, AlertPrefsManager, UnnotifiedAlertManager
 from alert.exceptions import CouldNotSendError
 from alert.signals import alert_sent
 
@@ -23,22 +25,31 @@ class Alert(models.Model):
     backend = models.CharField(max_length=20, default='EmailBackend', choices=ALERT_BACKEND_CHOICES)
     alert_type = models.CharField(max_length=25, choices=ALERT_TYPE_CHOICES)
 
+    instance_type = models.ForeignKey(ContentType, blank=True, null=True)
+    instance_id = models.PositiveIntegerField(blank=True, null=True)
+    instance = GenericForeignKey('instance_type', 'instance_id')
+
     title = models.CharField(max_length=250, default=get_alert_default_title)
     body = models.TextField()
 
     when = models.DateTimeField(default=timezone.now)
     created = models.DateTimeField(default=timezone.now)
     last_attempt = models.DateTimeField(blank=True, null=True)
-    
+
     is_sent = models.BooleanField(default=False)
+    is_notified = models.BooleanField(default=False)
     failed = models.BooleanField(default=False)
 
     site = models.ForeignKey(Site, default=get_alert_default_site)
 
     objects = AlertManager()
     pending = PendingAlertManager()
-    
-    
+    unnotified = UnnotifiedAlertManager()
+
+    def notify(self):
+        self.is_notified = True
+        self.save()
+
     def send(self):
         backend = self.backend_obj
         try:
@@ -46,17 +57,17 @@ class Alert(models.Model):
             self.is_sent = True
             self.failed = False
             alert_sent.send(sender=self.alert_type_obj, alert=self)
-            
+
         except CouldNotSendError:
             self.failed = True
-        
+
         self.last_attempt = timezone.now()
         self.save()
-    
+
     @property
     def alert_type_obj(self):
         return ALERT_TYPES[self.alert_type]
-    
+
     @property
     def backend_obj(self):
         return ALERT_BACKENDS[self.backend]
@@ -67,36 +78,36 @@ class AlertPreference(models.Model):
     user = models.ForeignKey(getattr(settings, 'AUTH_USER_MODEL', OriginalUser))
     alert_type = models.CharField(max_length=25, choices=ALERT_TYPE_CHOICES)
     backend = models.CharField(max_length=25, choices=ALERT_BACKEND_CHOICES)
-    
+
     preference = models.BooleanField(default=False)
-    
+
     objects = AlertPrefsManager()
-    
+
     class Meta:
         unique_together = ('user', 'alert_type', 'backend')
-        
+
     @property
     def alert_type_obj(self):
         return ALERT_TYPES[self.alert_type]
-    
+
     @property
     def backend_obj(self):
         return ALERT_BACKENDS[self.backend]
-    
-    
-    
+
+
+
 class AdminAlert(models.Model):
     title = models.CharField(max_length=250)
     body = models.TextField()
-    
+
     recipients = models.ForeignKey(Group, null=True, help_text="who should receive this message?")
 
     send_at = models.DateTimeField(default=timezone.now, help_text="schedule the sending of this message in the future")
     draft = models.BooleanField(default=False, verbose_name="Save as draft (don't send/queue now)")
     sent = models.BooleanField(default=False)
-    
-    
-   
+
+
+
 import alert.listeners #@UnusedImport
 import alert.backends #@UnusedImport
 import alert.alerts #@UnusedImport
