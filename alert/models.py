@@ -2,7 +2,6 @@ from django.conf import settings
 from django.utils import timezone
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import User as OriginalUser
-from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.db import models
@@ -11,6 +10,7 @@ from alert.utils import ALERT_TYPE_CHOICES, ALERT_BACKEND_CHOICES, ALERT_TYPES, 
 from alert.managers import AlertManager, PendingAlertManager, AlertPrefsManager, UnnotifiedAlertManager
 from alert.exceptions import CouldNotSendError
 from alert.signals import alert_sent
+from alert.compat import GenericForeignKey
 
 
 def get_alert_default_title():
