@@ -102,10 +102,11 @@ class BaseAlert(object):
 
         site = Site.objects.get_current()
 
+
         def mk_alert(user, backend, instance=None):
             context = self.get_template_context(BACKEND=backend, USER=user, SITE=site, ALERT=self, **kwargs)
             template_kwargs = {'backend': backend, 'context': context }
-            data = self.data.update(self.get_data(instance, **kwargs))
+            data = self.data.update(self.get_data(**kwargs))
             return Alert(
                           user=user,
                           backend=backend.id,
