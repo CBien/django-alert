@@ -18,7 +18,7 @@ setup(
 
     install_requires=[
         "django >= 1.2",
-        "django-jsonfield >= 1.0.0",
+        "django-jsonfield >= 0.9.13",
     ],
 
     packages=[
