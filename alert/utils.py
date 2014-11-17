@@ -59,6 +59,7 @@ class BaseAlert(object):
     default = False
     sender = None
     template_filetype = "txt"
+    data = {}
 
 
 
@@ -104,11 +105,13 @@ class BaseAlert(object):
         def mk_alert(user, backend, instance=None):
             context = self.get_template_context(BACKEND=backend, USER=user, SITE=site, ALERT=self, **kwargs)
             template_kwargs = {'backend': backend, 'context': context }
+            data = data.update(self.get_data(instance, **kwargs))
             return Alert(
                           user=user,
                           backend=backend.id,
                           alert_type=self.id,
                           instance=instance,
+                          data=data,
                           when=self.get_send_time(**kwargs),
                           title=self.get_title(**template_kwargs),
                           body=self.get_body(**template_kwargs)
@@ -126,6 +129,8 @@ class BaseAlert(object):
         else:
             for alert in alerts: alert.save()
 
+    def get_data(self, instance, **kwargs):
+        return {}
 
     def before(self, **kwargs):
         pass

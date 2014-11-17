@@ -12,6 +12,8 @@ from alert.managers import AlertManager, PendingAlertManager, AlertPrefsManager,
 from alert.exceptions import CouldNotSendError
 from alert.signals import alert_sent
 
+from jsonfield import JSONField
+
 
 def get_alert_default_title():
     return "%s alert" % Site.objects.get_current().name
@@ -31,6 +33,8 @@ class Alert(models.Model):
 
     title = models.CharField(max_length=250, default=get_alert_default_title)
     body = models.TextField()
+
+    data = JSONField(null=True, blank=True)
 
     when = models.DateTimeField(default=timezone.now)
     created = models.DateTimeField(default=timezone.now)

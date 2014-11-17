@@ -3,32 +3,33 @@ from setuptools import setup
 setup(
     name='django-alert',
     version='0.7.5',
-    
+
     author='James Robert',
     author_email='jiaaro@gmail.com',
-    
+
     description=('Send alerts, notifications, and messages based '
                 'on events in your django application'),
     long_description=open('README.markdown').read(),
-    
+
     license='MIT',
     keywords='django alerts notifications social',
-    
+
     url='https://djangoalert.com',
-    
+
     install_requires=[
         "django >= 1.2",
+        "django-jsonfield >= 1.0.0",
     ],
-    
+
     packages=[
-        'alert', 
-        'alert.management', 
-        'alert.management.commands', 
+        'alert',
+        'alert.management',
+        'alert.management.commands',
         'alert.migrations',
     ],
-    
+
     include_package_data=True,
-    
+
     classifiers=[
     	'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: MIT License',
