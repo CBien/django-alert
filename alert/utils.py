@@ -130,7 +130,7 @@ class BaseAlert(object):
         else:
             for alert in alerts: alert.save()
 
-    def get_data(self, instance, **kwargs):
+    def get_data(self, **kwargs):
         return {}
 
     def before(self, **kwargs):
