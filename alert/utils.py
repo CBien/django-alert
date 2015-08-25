@@ -3,7 +3,12 @@ from alert.exceptions import AlertIDAlreadyInUse, AlertBackendIDAlreadyInUse,\
 import django
 from django.conf import settings
 from django.utils import timezone
-from django.template.loader import render_to_string, find_template
+from django.template.loader import render_to_string
+try:
+    from django.template.loader import find_template
+except: # Django 1.8 compat
+    from django.template import engines
+    find_template = engines['django'].engine.find_template
 from django.contrib.sites.models import Site
 from django.template import TemplateDoesNotExist
 from django.db import models
